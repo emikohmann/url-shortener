@@ -10,10 +10,12 @@ import (
 )
 
 const (
-    insertURLMapping   = "INSERT INTO url_mapping (url, hash) VALUES (?, ?);"
-    insertHashMapping  = "INSERT INTO hash_mapping (hash, url) VALUES (?, ?);"
-    selectURLFromHash  = "SELECT url FROM hash_mapping WHERE hash = ?;"
-    selectHashFromURL  = "SELECT hash FROM url_mapping WHERE url = ?;"
+    tableURLMapping    = "url_mapping"
+    tableHashMapping   = "hash_mapping"
+    insertURLMapping   = "INSERT INTO %s (url, hash) VALUES (?, ?);"
+    insertHashMapping  = "INSERT INTO %s (hash, url) VALUES (?, ?);"
+    selectURLFromHash  = "SELECT url FROM %s WHERE hash = ?;"
+    selectHashFromURL  = "SELECT hash FROM %s WHERE url = ?;"
     errMappingNotFound = "mapping not found for %s"
 )
 
@@ -80,7 +82,10 @@ func (mapping *Mapping) AsyncSaveHashMapping(transaction *sql.Tx, out chan *apie
 
 func (mapping *Mapping) SaveURLMapping(transaction *sql.Tx) *apierrors.ApiError {
     if _, err := transaction.Exec(
-        insertURLMapping,
+        fmt.Sprintf(
+            insertURLMapping,
+            tableURLMapping,
+        ),
         mapping.URL,
         mapping.Hash,
     ); err != nil {
@@ -94,7 +99,10 @@ func (mapping *Mapping) SaveURLMapping(transaction *sql.Tx) *apierrors.ApiError 
 
 func (mapping *Mapping) SaveHashMapping(transaction *sql.Tx) *apierrors.ApiError {
     if _, err := transaction.Exec(
-        insertHashMapping,
+        fmt.Sprintf(
+            insertHashMapping,
+            tableHashMapping,
+        ),
         mapping.Hash,
         mapping.URL,
     ); err != nil {
@@ -108,7 +116,10 @@ func (mapping *Mapping) SaveHashMapping(transaction *sql.Tx) *apierrors.ApiError
 
 func (mapping *Mapping) GetHashFromURL() *apierrors.ApiError {
     rows, err := database.Client.Query(
-        selectHashFromURL,
+        fmt.Sprintf(
+            selectHashFromURL,
+            tableURLMapping,
+        ),
         mapping.URL,
     )
     if err != nil {
@@ -134,7 +145,10 @@ func (mapping *Mapping) GetHashFromURL() *apierrors.ApiError {
 
 func (mapping *Mapping) GetURLFromHash() *apierrors.ApiError {
     rows, err := database.Client.Query(
-        selectURLFromHash,
+        fmt.Sprintf(
+            selectURLFromHash,
+            tableHashMapping,
+        ),
         mapping.Hash,
     )
     if err != nil {

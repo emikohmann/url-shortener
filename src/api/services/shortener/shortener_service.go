@@ -3,20 +3,22 @@ package shortener
 import (
     "fmt"
     "net/http"
-    "github.com/emikohmann/url-shortener/src/api/utils"
     "github.com/emikohmann/url-shortener/src/api/config"
+    "github.com/emikohmann/url-shortener/src/api/utils/hashing"
+    "github.com/emikohmann/url-shortener/src/api/utils/apierrors"
     "github.com/emikohmann/url-shortener/src/api/domain/shortener"
 )
 
 const (
-    maxURLSize    = 3000
-    errURLTooLong = "url is too long"
-    urlPattern    = "%s/%s"
+    maxURLSize          = 3000
+    errURLTooLong       = "url is too long"
+    urlPattern          = "%s/%s"
+    errVectorizingVisit = "error vectorizing visit"
 )
 
-func ShortenURL(input *shortener.URLRequest) (*shortener.ShortenURLResponse, *utils.ApiError) {
+func ShortenURL(input *shortener.URLRequest) (*shortener.ShortenURLResponse, *apierrors.ApiError) {
     if len(input.URL) > maxURLSize {
-        return nil, &utils.ApiError{
+        return nil, &apierrors.ApiError{
             Error:      errURLTooLong,
             StatusCode: http.StatusBadRequest,
         }
@@ -34,7 +36,7 @@ func ShortenURL(input *shortener.URLRequest) (*shortener.ShortenURLResponse, *ut
 
         // is new url, shorten
         for {
-            mapping.Hash = utils.RandomString(config.ShortURLLength)
+            mapping.Hash = hashing.RandomString(config.ShortURLLength)
             if apiErr := mapping.Save(); apiErr != nil {
                 if !apiErr.IsDuplicatedEntryError() {
                     return nil, apiErr
@@ -52,8 +54,8 @@ func ShortenURL(input *shortener.URLRequest) (*shortener.ShortenURLResponse, *ut
     }, nil
 }
 
-func ResolveURL(input *shortener.URLRequest) (*shortener.ResolveURLResponse, *utils.ApiError) {
-    hash, apiErr := utils.ExtractHash(input.URL)
+func ResolveURL(input *shortener.URLRequest) (*shortener.ResolveURLResponse, *apierrors.ApiError) {
+    hash, apiErr := hashing.ExtractHash(input.URL)
     if apiErr != nil {
         return nil, apiErr
     }
@@ -66,7 +68,35 @@ func ResolveURL(input *shortener.URLRequest) (*shortener.ResolveURLResponse, *ut
         return nil, apiErr
     }
 
+    go func() {
+        if err := mapping.AggregateVisit(); err != nil {
+            fmt.Println(errVectorizingVisit, err)
+            return
+        }
+    }()
+
     return &shortener.ResolveURLResponse{
         ResolvedURL: mapping.URL,
     }, nil
+}
+
+func CountClicks(input *shortener.URLRequest) (*shortener.ClicksCounterResponse, *apierrors.ApiError) {
+    hash, apiErr := hashing.ExtractHash(input.URL)
+    if apiErr != nil {
+        return nil, apiErr
+    }
+
+    mapping := shortener.Mapping{
+        Hash: hash,
+    }
+
+    response, err := mapping.CountClicks()
+    if err != nil {
+        apiErr := &apierrors.ApiError{
+            Error:      err.Error(),
+            StatusCode: http.StatusInternalServerError,
+        }
+        return nil, apiErr
+    }
+    return response, nil
 }

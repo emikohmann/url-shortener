@@ -16,3 +16,10 @@ type Mapping struct {
     URL  string
     Hash string
 }
+
+type ClicksCounterResponse []ClicksCounter
+
+type ClicksCounter struct {
+    Date   string `json:"date"`
+    Visits int64  `json:"visits"`
+}

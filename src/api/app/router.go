@@ -23,6 +23,9 @@ func mapRoutes() {
 
     // resolve url
     router.POST("/resolve", shortener.ResolveURL)
+
+    // get clicks counters
+    router.POST("/clicks", shortener.CountClicks)
 }
 
 func run() {

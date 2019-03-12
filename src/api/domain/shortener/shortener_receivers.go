@@ -4,9 +4,9 @@ import (
     "fmt"
     "sync"
     "net/http"
-    "github.com/emikohmann/url-shortener/src/api/utils"
-    "github.com/emikohmann/url-shortener/src/api/clients/database"
     "database/sql"
+    "github.com/emikohmann/url-shortener/src/api/utils/apierrors"
+    "github.com/emikohmann/url-shortener/src/api/clients/database"
 )
 
 const (
@@ -18,16 +18,16 @@ const (
 )
 
 // save mapping in db and check consistency
-func (mapping *Mapping) Save() *utils.ApiError {
+func (mapping *Mapping) Save() *apierrors.ApiError {
     transaction, err := database.Client.Begin()
     if err != nil {
-        return &utils.ApiError{
+        return &apierrors.ApiError{
             Error:      err.Error(),
             StatusCode: http.StatusInternalServerError,
         }
     }
 
-    out := make(chan *utils.ApiError, 2)
+    out := make(chan *apierrors.ApiError, 2)
     defer close(out)
 
     // save url and hash mapping both in parallel
@@ -42,7 +42,7 @@ func (mapping *Mapping) Save() *utils.ApiError {
         if executionErr != nil {
             // if any operation fails, rollback
             if err := transaction.Rollback(); err != nil {
-                return &utils.ApiError{
+                return &apierrors.ApiError{
                     Error:      err.Error(),
                     StatusCode: http.StatusInternalServerError,
                 }
@@ -52,7 +52,7 @@ func (mapping *Mapping) Save() *utils.ApiError {
     }
 
     if err := transaction.Commit(); err != nil {
-        return &utils.ApiError{
+        return &apierrors.ApiError{
             Error:      err.Error(),
             StatusCode: http.StatusInternalServerError,
         }
@@ -60,7 +60,7 @@ func (mapping *Mapping) Save() *utils.ApiError {
     return nil
 }
 
-func (mapping *Mapping) AsyncSaveURLMapping(transaction *sql.Tx, out chan *utils.ApiError, group *sync.WaitGroup) {
+func (mapping *Mapping) AsyncSaveURLMapping(transaction *sql.Tx, out chan *apierrors.ApiError, group *sync.WaitGroup) {
     defer group.Done()
     if apiErr := mapping.SaveURLMapping(transaction); apiErr != nil {
         out <- apiErr
@@ -69,7 +69,7 @@ func (mapping *Mapping) AsyncSaveURLMapping(transaction *sql.Tx, out chan *utils
     out <- nil
 }
 
-func (mapping *Mapping) AsyncSaveHashMapping(transaction *sql.Tx, out chan *utils.ApiError, group *sync.WaitGroup) {
+func (mapping *Mapping) AsyncSaveHashMapping(transaction *sql.Tx, out chan *apierrors.ApiError, group *sync.WaitGroup) {
     defer group.Done()
     if apiErr := mapping.SaveHashMapping(transaction); apiErr != nil {
         out <- apiErr
@@ -78,13 +78,13 @@ func (mapping *Mapping) AsyncSaveHashMapping(transaction *sql.Tx, out chan *util
     out <- nil
 }
 
-func (mapping *Mapping) SaveURLMapping(transaction *sql.Tx) *utils.ApiError {
+func (mapping *Mapping) SaveURLMapping(transaction *sql.Tx) *apierrors.ApiError {
     if _, err := transaction.Exec(
         insertURLMapping,
         mapping.URL,
         mapping.Hash,
     ); err != nil {
-        return &utils.ApiError{
+        return &apierrors.ApiError{
             Error:      err.Error(),
             StatusCode: http.StatusInternalServerError,
         }
@@ -92,13 +92,13 @@ func (mapping *Mapping) SaveURLMapping(transaction *sql.Tx) *utils.ApiError {
     return nil
 }
 
-func (mapping *Mapping) SaveHashMapping(transaction *sql.Tx) *utils.ApiError {
+func (mapping *Mapping) SaveHashMapping(transaction *sql.Tx) *apierrors.ApiError {
     if _, err := transaction.Exec(
         insertHashMapping,
         mapping.Hash,
         mapping.URL,
     ); err != nil {
-        return &utils.ApiError{
+        return &apierrors.ApiError{
             Error:      err.Error(),
             StatusCode: http.StatusInternalServerError,
         }
@@ -106,25 +106,25 @@ func (mapping *Mapping) SaveHashMapping(transaction *sql.Tx) *utils.ApiError {
     return nil
 }
 
-func (mapping *Mapping) GetHashFromURL() *utils.ApiError {
+func (mapping *Mapping) GetHashFromURL() *apierrors.ApiError {
     rows, err := database.Client.Query(
         selectHashFromURL,
         mapping.URL,
     )
     if err != nil {
-        return &utils.ApiError{
+        return &apierrors.ApiError{
             Error:      err.Error(),
             StatusCode: http.StatusInternalServerError,
         }
     }
     if rows.Next() == false {
-        return &utils.ApiError{
+        return &apierrors.ApiError{
             Error:      fmt.Sprintf(errMappingNotFound, mapping.URL),
             StatusCode: http.StatusNotFound,
         }
     }
     if err := rows.Scan(&mapping.Hash); err != nil {
-        return &utils.ApiError{
+        return &apierrors.ApiError{
             Error:      err.Error(),
             StatusCode: http.StatusInternalServerError,
         }
@@ -132,25 +132,25 @@ func (mapping *Mapping) GetHashFromURL() *utils.ApiError {
     return nil
 }
 
-func (mapping *Mapping) GetURLFromHash() *utils.ApiError {
+func (mapping *Mapping) GetURLFromHash() *apierrors.ApiError {
     rows, err := database.Client.Query(
         selectURLFromHash,
         mapping.Hash,
     )
     if err != nil {
-        return &utils.ApiError{
+        return &apierrors.ApiError{
             Error:      err.Error(),
             StatusCode: http.StatusInternalServerError,
         }
     }
     if rows.Next() == false {
-        return &utils.ApiError{
+        return &apierrors.ApiError{
             Error:      fmt.Sprintf(errMappingNotFound, mapping.Hash),
             StatusCode: http.StatusNotFound,
         }
     }
     if err := rows.Scan(&mapping.URL); err != nil {
-        return &utils.ApiError{
+        return &apierrors.ApiError{
             Error:      err.Error(),
             StatusCode: http.StatusInternalServerError,
         }

@@ -7,6 +7,7 @@ import (
     "net/http"
     "math/rand"
     "github.com/emikohmann/url-shortener/src/api/config"
+    "github.com/emikohmann/url-shortener/src/api/utils/apierrors"
 )
 
 const (
@@ -29,10 +30,10 @@ func RandomString(n int) string {
     return string(b)
 }
 
-func ExtractHash(url string) (string, *ApiError) {
+func ExtractHash(url string) (string, *apierrors.ApiError) {
     reg, err := regexp.Compile(fmt.Sprintf("%s/%s", config.SitePrefix, `([a-zA-Z0-9]+)$`))
     if err != nil {
-        return "", &ApiError{
+        return "", &apierrors.ApiError{
             Error:      err.Error(),
             StatusCode: http.StatusBadRequest,
         }
@@ -40,7 +41,7 @@ func ExtractHash(url string) (string, *ApiError) {
     if result := reg.FindStringSubmatch(url); len(result) > 1 {
         return result[1], nil
     }
-    return "", &ApiError{
+    return "", &apierrors.ApiError{
         Error:      errHashNotFound,
         StatusCode: http.StatusBadRequest,
     }

@@ -13,7 +13,7 @@ const (
 )
 
 func ShortenURL(c *gin.Context) {
-    var input domain.URLMessage
+    var input domain.URLRequest
 
     if err := c.BindJSON(&input); err != nil {
         apiErr := &utils.ApiError{
@@ -34,7 +34,7 @@ func ShortenURL(c *gin.Context) {
 }
 
 func ResolveURL(c *gin.Context) {
-    var input domain.URLMessage
+    var input domain.URLRequest
 
     if err := c.BindJSON(&input); err != nil {
         apiErr := &utils.ApiError{

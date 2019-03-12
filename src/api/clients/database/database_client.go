@@ -7,6 +7,11 @@ import (
     _ "github.com/go-sql-driver/mysql"
 )
 
+const (
+    infDatabaseConnected  = "Database connected"
+    errConnectingDatabase = "Error connecting database"
+)
+
 var (
     username = os.Getenv("DB_USERNAME")
     password = os.Getenv("DB_PASSWORD")
@@ -21,9 +26,9 @@ func Connect() {
 
     var err error
     if Client, err = sql.Open("mysql", connection); err != nil {
-        fmt.Println("error connecting to database", err)
+        fmt.Println(errConnectingDatabase, err)
         panic(err)
     }
 
-    fmt.Println("database connected")
+    fmt.Println(infDatabaseConnected)
 }

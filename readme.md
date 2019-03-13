@@ -1,6 +1,6 @@
 #### URL Shortener
 
-To run this project in your computer, load database connection config in `load_env.sh` and execute:
+To run this project in your computer, edit `load_env.sh` and run:
 
 ```bash
 cd src/api

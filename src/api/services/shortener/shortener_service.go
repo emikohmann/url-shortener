@@ -34,7 +34,12 @@ func ShortenURL(input *shortener.URLRequest) (*shortener.ShortenURLResponse, *ap
             return nil, apiErr
         }
 
-        // is new url, shorten
+        // is new url, shorte
+        // first, check rate limiter per user
+        if apiErr := input.CheckExceededRequestLimit(); apiErr != nil {
+            return nil, apiErr
+        }
+
         for {
             mapping.Hash = hashing.RandomString(config.ShortURLLength)
             if apiErr := mapping.Save(); apiErr != nil {
@@ -44,7 +49,13 @@ func ShortenURL(input *shortener.URLRequest) (*shortener.ShortenURLResponse, *ap
                 // continue if collides with existing hash
                 continue
             }
-            // break if hash ok
+            // if hash ok, compute one request to user and break
+            if err := input.ComputeOneRequest(); err != nil {
+                return nil, &apierrors.ApiError{
+                    Error:      err.Error(),
+                    StatusCode: http.StatusInternalServerError,
+                }
+            }
             break
         }
     }

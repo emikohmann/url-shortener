@@ -8,6 +8,7 @@ import (
     "math/rand"
     "github.com/emikohmann/url-shortener/src/api/config"
     "github.com/emikohmann/url-shortener/src/api/utils/apierrors"
+    "crypto/md5"
 )
 
 const (
@@ -21,6 +22,10 @@ func init() {
 var (
     letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 )
+
+func MD5(input string) string {
+    return fmt.Sprintf("%x", md5.Sum([]byte(input)))
+}
 
 func RandomString(n int) string {
     b := make([]rune, n)

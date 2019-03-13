@@ -26,9 +26,20 @@ DROP TABLE IF EXISTS `clicks_vector`;
 
 CREATE TABLE `clicks_vector` (
   `hash`         VARCHAR(200)          NOT NULL,
-  `day_id`       BIGINT(20) UNSIGNED   NOT NULL,
+  `day_id`       BIGINT(20)   UNSIGNED NOT NULL,
   `clicks_count` MEDIUMINT(8) UNSIGNED NOT NULL,
   PRIMARY KEY (`hash`, `day_id`)
+)
+  ENGINE = InnoDB
+  DEFAULT CHARSET = latin1;
+
+DROP TABLE IF EXISTS `user_requests`;
+
+CREATE TABLE `user_requests` (
+  `user`          VARCHAR(200)          NOT NULL,
+  `minute_id`     BIGINT(20) UNSIGNED   NOT NULL,
+  `request_count` MEDIUMINT(8) UNSIGNED NOT NULL,
+  PRIMARY KEY (`user`, `minute_id`)
 )
   ENGINE = InnoDB
   DEFAULT CHARSET = latin1;

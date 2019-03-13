@@ -1,7 +1,8 @@
 package shortener
 
 type URLRequest struct {
-    URL string `json:"url"`
+    UserID string `json:"user"`
+    URL    string `json:"url"`
 }
 
 type ShortenURLResponse struct {

@@ -7,6 +7,8 @@ import (
 )
 
 const (
+    ApplicationName            = "url-shortener"
+    DatadogMetricAddress       = "127.0.0.1:8125"
     SitePrefix                 = "https://jampp.co"
     ShortURLLength             = 5
     RateLimiterMaxRequestCount = 10

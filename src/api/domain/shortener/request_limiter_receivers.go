@@ -28,7 +28,7 @@ func (urlRequest *URLRequest) CheckExceededRequestLimit() *apierrors.ApiError {
         urlRequest.UserID,
         vectors.GetMinuteID(
             time.Now().UTC().Add(
-                -config.RateLimiterMaxRequestCount*config.RateLimiteraxRequestTime,
+                -config.RateLimiterMaxRequestCount*config.RateLimiterMaxRequestTime,
             ),
         ),
     )

@@ -34,8 +34,7 @@ func ShortenURL(input *shortener.URLRequest) (*shortener.ShortenURLResponse, *ap
             return nil, apiErr
         }
 
-        // is new url, shorte
-        // first, check rate limiter per user
+        // is new url then shorten, but first check rate limiter per user
         if apiErr := input.CheckExceededRequestLimit(); apiErr != nil {
             return nil, apiErr
         }

@@ -24,6 +24,19 @@ const (
     metricTagFinalStatus      = "final_status:%d"
 )
 
+var (
+    // errors for public user
+    publicResponseErrShortenURL = map[string]string{
+        "error": "error in shorten URL",
+    }
+    publicResponseErrResolveURL = map[string]string{
+        "error": "error in resolve URL",
+    }
+    publicResponseErrCountClicks = map[string]string{
+        "error": "error in count clicks",
+    }
+)
+
 func ShortenURL(c *gin.Context) {
     finalStatus := http.StatusOK
     defer func() {
@@ -48,7 +61,7 @@ func ShortenURL(c *gin.Context) {
     response, apiErr := service.ShortenURL(&input)
     if apiErr != nil {
         config.Logger.Println(errShortenURL, apiErr)
-        c.JSON(apiErr.StatusCode, apiErr)
+        c.JSON(apiErr.StatusCode, publicResponseErrShortenURL)
         finalStatus = apiErr.StatusCode
         return
     }
@@ -80,7 +93,7 @@ func ResolveURL(c *gin.Context) {
     response, apiErr := service.ResolveURL(&input)
     if apiErr != nil {
         config.Logger.Println(errResolveURL, apiErr)
-        c.JSON(apiErr.StatusCode, apiErr)
+        c.JSON(apiErr.StatusCode, publicResponseErrShortenURL)
         finalStatus = apiErr.StatusCode
         return
     }
@@ -102,7 +115,7 @@ func CountClicks(c *gin.Context) {
             StatusCode: http.StatusBadRequest,
         }
         config.Logger.Println(errCountClicks, apiErr)
-        c.JSON(apiErr.StatusCode, apiErr)
+        c.JSON(apiErr.StatusCode, publicResponseErrShortenURL)
         finalStatus = apiErr.StatusCode
         return
     }

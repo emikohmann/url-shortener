@@ -7,11 +7,15 @@ import (
     domain "github.com/emikohmann/url-shortener/src/api/domain/shortener"
     service "github.com/emikohmann/url-shortener/src/api/services/shortener"
     "github.com/emikohmann/url-shortener/src/api/utils/hashing"
+    "github.com/emikohmann/url-shortener/src/api/config"
 )
 
 const (
     errInvalidInput    = "invalid input url message"
     headerKeyUserAgent = "User-Agent"
+    errShortenURL      = "error in shorten URL"
+    errResolveURL      = "error in resolve URL"
+    errCountClicks     = "error in count clicks URL"
 )
 
 func ShortenURL(c *gin.Context) {
@@ -22,6 +26,7 @@ func ShortenURL(c *gin.Context) {
             Error:      errInvalidInput,
             StatusCode: http.StatusBadRequest,
         }
+        config.Logger.Println(errShortenURL, apiErr)
         c.JSON(apiErr.StatusCode, apiErr)
         return
     }
@@ -30,6 +35,7 @@ func ShortenURL(c *gin.Context) {
 
     response, apiErr := service.ShortenURL(&input)
     if apiErr != nil {
+        config.Logger.Println(errShortenURL, apiErr)
         c.JSON(apiErr.StatusCode, apiErr)
         return
     }
@@ -45,6 +51,7 @@ func ResolveURL(c *gin.Context) {
             Error:      errInvalidInput,
             StatusCode: http.StatusBadRequest,
         }
+        config.Logger.Println(errResolveURL, apiErr)
         c.JSON(apiErr.StatusCode, apiErr)
         return
     }
@@ -53,6 +60,7 @@ func ResolveURL(c *gin.Context) {
 
     response, apiErr := service.ResolveURL(&input)
     if apiErr != nil {
+        config.Logger.Println(errResolveURL, apiErr)
         c.JSON(apiErr.StatusCode, apiErr)
         return
     }
@@ -68,6 +76,7 @@ func CountClicks(c *gin.Context) {
             Error:      errInvalidInput,
             StatusCode: http.StatusBadRequest,
         }
+        config.Logger.Println(errCountClicks, apiErr)
         c.JSON(apiErr.StatusCode, apiErr)
         return
     }
@@ -76,6 +85,7 @@ func CountClicks(c *gin.Context) {
 
     response, apiErr := service.CountClicks(&input)
     if apiErr != nil {
+        config.Logger.Println(errCountClicks, apiErr)
         c.JSON(apiErr.StatusCode, apiErr)
         return
     }

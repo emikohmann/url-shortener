@@ -80,7 +80,7 @@ func ResolveURL(input *shortener.URLRequest) (*shortener.ResolveURLResponse, *ap
 
     go func() {
         if err := mapping.AggregateVisit(); err != nil {
-            fmt.Println(errVectorizingVisit, err)
+            config.Logger.Println(errVectorizingVisit, err)
             return
         }
     }()

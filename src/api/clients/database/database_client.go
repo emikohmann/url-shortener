@@ -5,6 +5,7 @@ import (
     "fmt"
     "database/sql"
     _ "github.com/go-sql-driver/mysql"
+    "github.com/emikohmann/url-shortener/src/api/config"
 )
 
 const (
@@ -26,9 +27,9 @@ func Connect() {
 
     var err error
     if Client, err = sql.Open("mysql", connection); err != nil {
-        fmt.Println(errConnectingDatabase, err)
+        config.Logger.Println(errConnectingDatabase, err)
         panic(err)
     }
-
-    fmt.Println(infDatabaseConnected)
+    
+    config.Logger.Println(infDatabaseConnected)
 }

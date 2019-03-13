@@ -1,20 +1,15 @@
 #### URL Shortener
 
-To run this project in your computer, edit `src/api/load_env.sh` file and run:
+First, edit `src/api/load_env.sh` file and configure MySQL environment:
 
 ```bash
 cd src/api
 source load_env.sh
-```
-
-Then, configure MySQL environment:
-
-```bash
 mysql -uroot -p
 source scripts/database_config.sql
 ```
 
-Finally, build and run the project:
+To run the project in your computer, run:
 
 ```bash
 go build
@@ -25,6 +20,14 @@ Or just:
 
 ```bash
 go run main.go
+```
+
+---
+
+To run test cases in your computer, run:
+
+```bash
+go test ./... -v
 ```
 
 ---

@@ -1,6 +1,6 @@
 #### URL Shortener
 
-To run this project in your computer, edit `load_env.sh` and run:
+To run this project in your computer, edit `src/api/load_env.sh` file and run:
 
 ```bash
 cd src/api
@@ -39,7 +39,7 @@ go run main.go
 }
 ```
 
-This endpoint is limited to (configurable) 10 request in last hour per user. if user exceeds the limit, he will receive a response code 429.
+> This endpoint is limited to (configurable) 10 request in last hour per user. if user exceeds the limit, he will receive a response code 429.
 
 Example response:
 

@@ -7,7 +7,14 @@ cd src/api
 source load_env.sh
 ```
 
-Then, build and run the project:
+Then, configure MySQL environment:
+
+```bash
+mysql -uroot -p
+source scripts/database_config.sql
+```
+
+Finally, build and run the project:
 
 ```bash
 go build

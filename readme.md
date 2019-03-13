@@ -58,7 +58,7 @@ Example response:
 }
 ```
 
-* **POST** `/clicks` compute clicks counter per hour for a particular shor URL.
+* **POST** `/clicks` compute clicks counter per hour for a particular short URL.
 
 ```json
 {
